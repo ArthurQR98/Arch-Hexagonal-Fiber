@@ -18,10 +18,14 @@ func CreateHandler(courseRepository mooc.CourseRepository) fiber.Handler {
 		if err := ctx.BodyParser(req); err != nil {
 			return err
 		}
-		course := mooc.NewCourse(req.ID, req.Name, req.Duration)
+		course, err := mooc.NewCourse(req.ID, req.Name, req.Duration)
+		if err != nil {
+			ctx.SendStatus(400)
+			return ctx.JSON(fiber.Map{"error": err.Error()})
+		}
 		if err := courseRepository.Save(ctx.Context(), course); err != nil {
-			ctx.JSON(err.Error())
-			return err
+			ctx.SendStatus(500)
+			return ctx.JSON(fiber.Map{"error": err.Error()})
 		}
 		ctx.JSON(fiber.Map{
 			"message": "create successfully",
