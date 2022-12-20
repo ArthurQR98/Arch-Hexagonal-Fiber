@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 
+	mooc "github.com/ArthurQR98/challenge_fiber/internal"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/courses"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/health"
 	"github.com/gofiber/fiber/v2"
@@ -14,16 +15,20 @@ import (
 type Server struct {
 	httpAddr string
 	engine   *fiber.App
+
+	// dependencies
+	courseRepository mooc.CourseRepository
 }
 
-func New(host string, port uint) Server {
+func New(host string, port uint, courseRepository mooc.CourseRepository) Server {
 	srv := Server{
 		engine: fiber.New(fiber.Config{
 			CaseSensitive: true,
 			StrictRouting: true,
 			AppName:       "Challenge Fiber",
 		}),
-		httpAddr: fmt.Sprintf("%s:%d", host, port),
+		httpAddr:         fmt.Sprintf("%s:%d", host, port),
+		courseRepository: courseRepository,
 	}
 	srv.registerRoutes()
 	return srv
@@ -40,5 +45,5 @@ func (s *Server) Run() error {
 
 func (s *Server) registerRoutes() {
 	s.engine.Get("/health", health.CheckHandler())
-	s.engine.Post("/courses", courses.CreateHandler())
+	s.engine.Post("/courses", courses.CreateHandler(s.courseRepository))
 }

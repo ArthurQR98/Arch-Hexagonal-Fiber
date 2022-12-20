@@ -1,5 +1,7 @@
 package mooc
 
+import "context"
+
 type Course struct {
 	id       string
 	name     string
@@ -12,6 +14,10 @@ func NewCourse(id, name, duration string) Course {
 		name:     name,
 		duration: duration,
 	}
+}
+
+type CourseRepository interface {
+	Save(ctx context.Context, course Course) error
 }
 
 func (c *Course) ID() string {
