@@ -6,6 +6,7 @@ import (
 
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/storage/mysql"
+	_ "github.com/go-sql-driver/mysql" //important
 )
 
 const (

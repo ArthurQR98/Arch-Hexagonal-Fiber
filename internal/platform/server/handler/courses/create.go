@@ -2,7 +2,6 @@ package courses
 
 import (
 	mooc "github.com/ArthurQR98/challenge_fiber/internal"
-	_ "github.com/go-sql-driver/mysql" //important
 	"github.com/gofiber/fiber/v2"
 )
 
