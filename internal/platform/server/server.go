@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 
+	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/courses"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/health"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -39,4 +40,5 @@ func (s *Server) Run() error {
 
 func (s *Server) registerRoutes() {
 	s.engine.Get("/health", health.CheckHandler())
+	s.engine.Post("/courses", courses.CreateHandler())
 }
