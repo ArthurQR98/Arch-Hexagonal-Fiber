@@ -16,6 +16,7 @@ func NewCourse(id, name, duration string) Course {
 	}
 }
 
+//go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=CourseRepository
 type CourseRepository interface {
 	Save(ctx context.Context, course Course) error
 }
