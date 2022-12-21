@@ -6,7 +6,6 @@ import (
 
 func CheckHandler() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		ctx.SendString("Everything is Ok!")
-		return ctx.SendStatus(fiber.StatusOK)
+		return ctx.Status(fiber.StatusOK).SendString("Everything is Ok!")
 	}
 }
