@@ -3,9 +3,9 @@ package server
 import (
 	"fmt"
 
-	"github.com/ArthurQR98/challenge_fiber/internal/creating"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/courses"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/health"
+	"github.com/ArthurQR98/challenge_fiber/kit/command"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -18,18 +18,18 @@ type Server struct {
 	engine   *fiber.App
 
 	// dependencies
-	creatingCourseService creating.CourseService
+	commandBus command.Bus
 }
 
-func New(host string, port uint, creatingCourseService creating.CourseService) Server {
+func New(host string, port uint, commandBus command.Bus) Server {
 	srv := Server{
 		engine: fiber.New(fiber.Config{
 			CaseSensitive: true,
 			StrictRouting: true,
 			AppName:       "Challenge Fiber",
 		}),
-		httpAddr:              fmt.Sprintf("%s:%d", host, port),
-		creatingCourseService: creatingCourseService,
+		httpAddr:   fmt.Sprintf("%s:%d", host, port),
+		commandBus: commandBus,
 	}
 	srv.registerRoutes()
 	return srv
@@ -47,5 +47,5 @@ func (s *Server) Run() error {
 
 func (s *Server) registerRoutes() {
 	s.engine.Get("/health", health.CheckHandler())
-	s.engine.Post("/courses", courses.CreateHandler(s.creatingCourseService))
+	s.engine.Post("/courses", courses.CreateHandler(s.commandBus))
 }

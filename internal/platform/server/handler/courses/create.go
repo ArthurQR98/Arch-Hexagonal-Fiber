@@ -5,6 +5,7 @@ import (
 
 	mooc "github.com/ArthurQR98/challenge_fiber/internal"
 	"github.com/ArthurQR98/challenge_fiber/internal/creating"
+	"github.com/ArthurQR98/challenge_fiber/kit/command"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -14,15 +15,14 @@ type createRequest struct {
 	Duration string `json:"duration" binding:"required"`
 }
 
-func CreateHandler(creatingCourseService creating.CourseService) fiber.Handler {
+func CreateHandler(commandBus command.Bus) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		req := new(createRequest)
-		if err := ctx.BodyParser(req); err != nil {
-			return err
+		var req createRequest
+		if err := ctx.BodyParser(&req); err != nil {
+			return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		err := creatingCourseService.CreateCourse(ctx.Context(), req.ID, req.Name, req.Duration)
-
+		err := commandBus.Dispatch(ctx.Context(), creating.NewCourseCommand(req.ID, req.Name, req.Duration))
 		if err != nil {
 			switch {
 			case errors.Is(err, mooc.ErrInvalidCourseID),
