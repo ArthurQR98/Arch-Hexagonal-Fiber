@@ -2,6 +2,11 @@ package server
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/courses"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/health"
@@ -21,12 +26,13 @@ type Server struct {
 	commandBus command.Bus
 }
 
-func New(host string, port uint, commandBus command.Bus) Server {
+func New(host string, port uint, shutdownTimeout time.Duration, commandBus command.Bus) Server {
 	srv := Server{
 		engine: fiber.New(fiber.Config{
 			CaseSensitive: true,
 			StrictRouting: true,
 			AppName:       "Challenge Fiber",
+			IdleTimeout:   shutdownTimeout,
 		}),
 		httpAddr:   fmt.Sprintf("%s:%d", host, port),
 		commandBus: commandBus,
@@ -42,7 +48,19 @@ func (s *Server) Run() error {
 	s.engine.Use(compress.New())
 	s.engine.Use(cors.New())
 	s.engine.Use(recover.New())
-	return s.engine.Listen(s.httpAddr)
+
+	go func() {
+		if err := s.engine.Listen(s.httpAddr); err != nil {
+			log.Panic(err)
+		}
+	}()
+	// Create channel to signify a signal being sent
+	c := make(chan os.Signal, 1)
+	// When an interrupt or termination signal is sent, notify the channel
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	// This blocks the main thread until an interrupt is received
+	<-c
+	return s.engine.Shutdown()
 }
 
 func (s *Server) registerRoutes() {

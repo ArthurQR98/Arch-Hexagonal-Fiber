@@ -3,6 +3,7 @@ package boostrap
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/ArthurQR98/challenge_fiber/internal/creating"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/bus/inmemory"
@@ -12,8 +13,9 @@ import (
 )
 
 const (
-	host = "localhost"
-	port = 3000
+	host            = "localhost"
+	port            = 3000
+	shutdownTimeout = 10 * time.Second
 
 	dbUser = "arthur"
 	dbPass = "020398"
@@ -40,6 +42,6 @@ func Run() error {
 	createCourseCommandHandler := creating.NewCourseCommandHandler(creatingCourseService)
 	commandBus.Register(creating.CourseCommandType, createCourseCommandHandler)
 
-	srv := server.New(host, port, commandBus)
+	srv := server.New(host, port, shutdownTimeout, commandBus)
 	return srv.Run()
 }
