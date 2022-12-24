@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	mooc "github.com/ArthurQR98/challenge_fiber/internal"
 	"github.com/DATA-DOG/go-sqlmock"
@@ -21,7 +22,7 @@ func Test_CourseRepository_Save_RepositoryError(t *testing.T) {
 
 	sqlMock.ExpectExec(
 		"INSERT INTO courses (id, name, duration) VALUES (?, ?, ?)").WithArgs(courseID, courseName, courseDuration).WillReturnError(errors.New("something-failed"))
-	repo := NewCourseRepository(db)
+	repo := NewCourseRepository(db, 1*time.Millisecond)
 
 	err = repo.Save(context.Background(), course)
 
@@ -41,7 +42,7 @@ func Test_CourseRepository_Save_Succeed(t *testing.T) {
 		"INSERT INTO courses (id, name, duration) VALUES (?, ?, ?)").
 		WithArgs(courseID, courseName, courseDuration).
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	repo := NewCourseRepository(db)
+	repo := NewCourseRepository(db, 1*time.Millisecond)
 
 	err = repo.Save(context.Background(), course)
 
