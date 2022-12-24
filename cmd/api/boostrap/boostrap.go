@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	mooc "github.com/ArthurQR98/challenge_fiber/internal"
 	"github.com/ArthurQR98/challenge_fiber/internal/creating"
+	"github.com/ArthurQR98/challenge_fiber/internal/increasing"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/bus/inmemory"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/storage/mysql"
@@ -40,9 +42,15 @@ func Run() error {
 	courseRepository := mysql.NewCourseRepository(db, dbTimeout)
 
 	creatingCourseService := creating.NewCourseService(courseRepository, eventBus)
+	increasingCourseCounterService := increasing.NewCourseCounterService()
 
 	createCourseCommandHandler := creating.NewCourseCommandHandler(creatingCourseService)
 	commandBus.Register(creating.CourseCommandType, createCourseCommandHandler)
+
+	eventBus.Subscribe(
+		mooc.CourseCreatedEventType,
+		creating.NewIncreaseCoursesCounterOnCourseCreated(increasingCourseCounterService),
+	)
 
 	srv := server.New(host, port, shutdownTimeout, commandBus)
 	return srv.Run()

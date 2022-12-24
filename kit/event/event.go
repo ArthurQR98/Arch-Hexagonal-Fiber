@@ -9,6 +9,11 @@ import (
 
 type Bus interface {
 	Publish(context.Context, []Event) error
+	Subscribe(Type, Handler)
+}
+
+type Handler interface {
+	Handle(context.Context, Event) error
 }
 
 //go:generate mockery --case=snake --outpkg=eventmocks --output=eventmocks --name=Bus
