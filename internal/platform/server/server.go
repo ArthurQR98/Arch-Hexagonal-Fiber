@@ -42,13 +42,6 @@ func New(host string, port uint, shutdownTimeout time.Duration, commandBus comma
 }
 
 func (s *Server) Run() error {
-	s.engine.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
-	}))
-	s.engine.Use(compress.New())
-	s.engine.Use(cors.New())
-	s.engine.Use(recover.New())
-
 	go func() {
 		if err := s.engine.Listen(s.httpAddr); err != nil {
 			log.Panic(err)
@@ -64,6 +57,14 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) registerRoutes() {
+	// Middlewares
+	s.engine.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
+	s.engine.Use(compress.New())
+	s.engine.Use(cors.New())
+	s.engine.Use(recover.New())
+
 	s.engine.Get("/health", health.CheckHandler())
 	s.engine.Post("/courses", courses.CreateHandler(s.commandBus))
 }

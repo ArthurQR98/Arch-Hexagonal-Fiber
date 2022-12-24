@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ArthurQR98/challenge_fiber/kit/event"
 	"github.com/google/uuid"
 )
 
@@ -70,6 +71,8 @@ type Course struct {
 	id       CourseID
 	name     CourseName
 	duration CourseDuration
+
+	events []event.Event
 }
 
 func NewCourse(id, name, duration string) (Course, error) {
@@ -88,11 +91,13 @@ func NewCourse(id, name, duration string) (Course, error) {
 		return Course{}, err
 	}
 
-	return Course{
+	course := Course{
 		id:       idVO,
 		name:     nameVO,
 		duration: durantionVO,
-	}, nil
+	}
+	course.Record(NewCourseCreatedEvent(idVO.String(), nameVO.String(), durantionVO.String()))
+	return course, nil
 }
 
 //go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=CourseRepository
@@ -110,4 +115,14 @@ func (c *Course) Name() CourseName {
 
 func (c *Course) Duration() CourseDuration {
 	return c.duration
+}
+
+func (c *Course) Record(evt event.Event) {
+	c.events = append(c.events, evt)
+}
+
+func (c *Course) PullEvents() []event.Event {
+	evt := c.events
+	c.events = []event.Event{}
+	return evt
 }
