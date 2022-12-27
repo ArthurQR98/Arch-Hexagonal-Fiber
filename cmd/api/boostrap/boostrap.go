@@ -12,23 +12,31 @@ import (
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/storage/mysql"
 	_ "github.com/go-sql-driver/mysql" //important
+	"github.com/kelseyhightower/envconfig"
 )
 
-const (
-	host            = "localhost"
-	port            = 3000
-	shutdownTimeout = 10 * time.Second
-
-	dbUser    = "arthur"
-	dbPass    = "020398"
-	dbHost    = "localhost"
-	dbPort    = "3306"
-	dbName    = "test"
-	dbTimeout = 5 * time.Second
-)
+type config struct {
+	// Server configuration
+	Host            string        `default:"localhost"`
+	Port            uint          `default:"4000"`
+	ShutdownTimeout time.Duration `default:"10s"`
+	// Database configuration
+	DbUser    string        `default:"test"`
+	DbPass    string        `default:"test"`
+	DbHost    string        `default:"localhost"`
+	DbPort    uint          `default:"3306"`
+	DbName    string        `default:"test"`
+	DbTimeout time.Duration `default:"5s"`
+}
 
 func Run() error {
-	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	var cfg config
+	err := envconfig.Process("FIBER", &cfg)
+	if err != nil {
+		return err
+	}
+
+	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", cfg.DbUser, cfg.DbPass, cfg.DbHost, cfg.DbPort, cfg.DbName)
 	db, err := sql.Open("mysql", mysqlURI)
 	if err != nil {
 		return err
@@ -39,7 +47,7 @@ func Run() error {
 		eventBus   = inmemory.NewEventBus()
 	)
 
-	courseRepository := mysql.NewCourseRepository(db, dbTimeout)
+	courseRepository := mysql.NewCourseRepository(db, cfg.DbTimeout)
 
 	creatingCourseService := creating.NewCourseService(courseRepository, eventBus)
 	increasingCourseCounterService := increasing.NewCourseCounterService()
@@ -52,6 +60,6 @@ func Run() error {
 		creating.NewIncreaseCoursesCounterOnCourseCreated(increasingCourseCounterService),
 	)
 
-	srv := server.New(host, port, shutdownTimeout, commandBus)
+	srv := server.New(cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus)
 	return srv.Run()
 }

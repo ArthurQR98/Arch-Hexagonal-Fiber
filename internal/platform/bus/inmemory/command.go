@@ -2,7 +2,6 @@ package inmemory
 
 import (
 	"context"
-	"log"
 
 	"github.com/ArthurQR98/challenge_fiber/kit/command"
 )
@@ -22,16 +21,7 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd command.Command) error {
 	if !ok {
 		return nil
 	}
-
-	// var err error
-	go func() {
-		err := handler.Handle(ctx, cmd)
-		if err != nil {
-			log.Printf("Error while handling %s - %s\n", cmd.Type(), err)
-		}
-
-	}()
-	return nil
+	return handler.Handle(ctx, cmd)
 }
 
 func (b *CommandBus) Register(cmdType command.Type, handler command.Handler) {
