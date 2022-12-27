@@ -10,12 +10,14 @@ import (
 
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/courses"
 	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/handler/health"
+	"github.com/ArthurQR98/challenge_fiber/internal/platform/server/middlewares/notfound"
 	"github.com/ArthurQR98/challenge_fiber/kit/command"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 )
 
 type Server struct {
@@ -59,12 +61,16 @@ func (s *Server) Run() error {
 func (s *Server) registerRoutes() {
 	// Middlewares
 	s.engine.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+		Format:     "${cyan}[${time}] ${white}${pid} ${red}${status} ${blue}[${method}] ${white}${path}\n",
+		TimeFormat: "02-Jan-2006",
 	}))
 	s.engine.Use(compress.New())
 	s.engine.Use(cors.New())
 	s.engine.Use(recover.New())
 
+	s.engine.Get("/api-docs/*", swagger.HandlerDefault)
 	s.engine.Get("/health", health.CheckHandler())
 	s.engine.Post("/courses", courses.CreateHandler(s.commandBus))
+
+	s.engine.Use(notfound.New())
 }

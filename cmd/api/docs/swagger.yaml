@@ -1,0 +1,82 @@
+basePath: /
+definitions:
+  courses.createRequest:
+    description: Course model information with id, name and duration
+    properties:
+      duration:
+        description: this is duration
+        type: string
+      id:
+        description: ID this is id uuid
+        type: string
+      name:
+        description: This is name
+        type: string
+    required:
+    - duration
+    - id
+    - name
+    type: object
+host: localhost:4000
+info:
+  contact:
+    email: arthur.quezada98@gmail.com
+    name: API Support
+  description: Documentation with Swagger of the API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Challenge Fiber API
+  version: "1.0"
+paths:
+  /courses:
+    post:
+      consumes:
+      - application/json
+      description: create course
+      parameters:
+      - description: Add course
+        in: body
+        name: course
+        required: true
+        schema:
+          $ref: '#/definitions/courses.createRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: error
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: create course
+      tags:
+      - Courses
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: check status of server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: check status of server
+      tags:
+      - Check
+swagger: "2.0"

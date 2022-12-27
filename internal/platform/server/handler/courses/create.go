@@ -9,12 +9,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Course model info
+//	@Description	Course model information
+//	@Description	with id, name and duration
 type createRequest struct {
-	ID       string `json:"id" binding:"required"`
-	Name     string `json:"name" binding:"required"`
-	Duration string `json:"duration" binding:"required"`
+	ID       string `json:"id" binding:"required"`       // ID this is id uuid
+	Name     string `json:"name" binding:"required"`     // This is name
+	Duration string `json:"duration" binding:"required"` // this is duration
 }
 
+// CreateHandler godoc
+//
+//	@Summary		create course
+//	@Description	create course
+//	@Tags			Courses
+//	@Accept			json
+//	@Produce		json
+//	@Param			course	body		createRequest	true	"Add course"
+//	@Success		200		{string}	string
+//	@Failure		400		{string}	string	"error"
+//	@Failure		404		{object}	string
+//	@Failure		500		{string}	string	"error"
+//	@Router			/courses [post]
 func CreateHandler(commandBus command.Bus) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		var req createRequest

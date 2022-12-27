@@ -33,10 +33,9 @@ func TestHandler_Create(t *testing.T) {
 		require.NoError(t, err)
 
 		req, err := http.NewRequest(http.MethodPost, "/courses", bytes.NewBuffer(b))
-		// req.Header.Set("Content-Type", "application/json")
 		require.NoError(t, err)
 
-		res, err := r.Test(req)
+		res, err := r.Test(req, -1)
 		require.NoError(t, err)
 
 		defer res.Body.Close()
@@ -56,30 +55,29 @@ func TestHandler_Create(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		require.NoError(t, err)
 
-		res, _ := r.Test(req)
+		res, _ := r.Test(req, -1)
 
 		defer res.Body.Close()
 
 		assert.Equal(t, http.StatusCreated, res.StatusCode)
 	})
 
-	// t.Run("given a valid request with invalid id returns 400", func(t *testing.T) {
-	// 	createCourseReq := createRequest{
-	// 		ID:       "ba57",
-	// 		Name:     "Demo Course",
-	// 		Duration: "10 months",
-	// 	}
-	// 	b, err := json.Marshal(createCourseReq)
-	// 	require.NoError(t, err)
+	t.Run("given a valid request with invalid id returns 400", func(t *testing.T) {
+		createCourseReq := createRequest{
+			ID:       "ba57",
+			Name:     "Demo Course",
+			Duration: "10 months",
+		}
+		b, err := json.Marshal(createCourseReq)
+		require.NoError(t, err)
 
-	// 	req, err := http.NewRequest(http.MethodPost, "/courses", bytes.NewBuffer(b))
-	// 	req.Header.Set("Content-Type", "application/json")
-	// 	require.NoError(t, err)
+		req, err := http.NewRequest(http.MethodPost, "/courses", bytes.NewBuffer(b))
+		require.NoError(t, err)
 
-	// 	res, _ := r.Test(req)
+		res, _ := r.Test(req)
 
-	// 	defer res.Body.Close()
+		defer res.Body.Close()
 
-	// 	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
-	// })
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	})
 }
