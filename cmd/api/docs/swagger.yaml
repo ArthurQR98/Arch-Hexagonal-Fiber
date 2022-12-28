@@ -17,7 +17,7 @@ definitions:
     - id
     - name
     type: object
-host: localhost:4000
+host: localhost:8080
 info:
   contact:
     email: arthur.quezada98@gmail.com

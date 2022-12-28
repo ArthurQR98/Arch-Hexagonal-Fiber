@@ -17,7 +17,7 @@ import (
 // @contact.email	arthur.quezada98@gmail.com
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-// @host			localhost:4000
+// @host			localhost:8080
 // @BasePath		/
 func main() {
 	if err := boostrap.Run(); err != nil {
